@@ -13,15 +13,17 @@ import org.junit.Test;
  */
 public class StudyListTest {
 
-    /**
-     * @throws java.lang.Exception
-     */
+    Item flashCard;
+    StudyList flashCards;
+    
     @Before
     public void setUp() throws Exception {
+    	flashCard = new Item("hello", "hola");
+    	flashCards.add(flashCard);
     }
 
     /**
-     * Test method for {@link flashCards.StudyList#StudyList()}.
+     * Test method for constructor.
      */
     @Test
     public final void testStudyList() {
@@ -29,7 +31,7 @@ public class StudyListTest {
     }
 
     /**
-     * Test method for {@link flashCards.StudyList#add(flashCards.Item)}.
+     * Test method for add(Item).
      */
     @Test
     public final void testAdd() {
@@ -37,7 +39,7 @@ public class StudyListTest {
     }
 
     /**
-     * Test method for {@link flashCards.StudyList#find(java.lang.String)}.
+     * Test method for find(String).
      */
     @Test
     public final void testFind() {
@@ -45,7 +47,7 @@ public class StudyListTest {
     }
 
     /**
-     * Test method for {@link flashCards.StudyList#delete(flashCards.Item)}.
+     * Test method for delete(Item).
      */
     @Test
     public final void testDelete() {
@@ -53,7 +55,7 @@ public class StudyListTest {
     }
 
     /**
-     * Test method for {@link flashCards.StudyList#modify(flashCards.Item, java.lang.String, java.lang.String)}.
+     * Test method for modify(Item, String, String).
      */
     @Test
     public final void testModify() {

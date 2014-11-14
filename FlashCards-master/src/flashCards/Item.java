@@ -4,7 +4,7 @@
 package flashCards;
 
 /**
- * @authors Martha Trevino & Josh Taylor 
+ * @authors David Matuszek, Martha Trevino & Josh Taylor 
  */
 public class Item {
 
