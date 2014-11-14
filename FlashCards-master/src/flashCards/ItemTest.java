@@ -13,46 +13,71 @@ import org.junit.Test;
  */
 public class ItemTest {
 
-    /**
-     * @throws java.lang.Exception
-     */
+
+    Item flashCard;
+	
     @Before
     public void setUp() throws Exception {
+    	flashCard = new Item("hello", "hola");
     }
 
     /**
-     * Test method for {@link flashCards.Item#Item(java.lang.String, java.lang.String)}.
+     * Test method for (String, String) constructor.
      */
     @Test
-    public final void testItem() {
-        fail("Not yet implemented");
+    public final void testItemStringString() {
+    	flashCard = new Item("hello", "hola");
+        assertTrue(flashCard instanceof Item);
+        assertEquals("hello", flashCard.getStimulus());
+        assertEquals("hola", flashCard.getResponse());
+        assertEquals(0, flashCard.getTimesCorrect());
     }
 
     /**
-     * Test method for {@link flashCards.Item#setStimulus(java.lang.String)} and
-     * {@link flashCards.Item#getStimulus()} (combined).
+     * Test method for (String, String, int) constructor.
+     */
+    @Test
+    public final void testItemStringStringInt() {
+    	flashCard = new Item("hello", "hola", 5);
+        assertTrue(flashCard instanceof Item);
+        assertEquals("hello", flashCard.getStimulus());
+        assertEquals("hola", flashCard.getResponse());
+        assertEquals(5, flashCard.getTimesCorrect());
+    }
+    
+    /**
+     * Test method for setStimulus(String) and
+     * getStimulus() (combined).
      */
     @Test
     public final void testSetAndGetStimulus() {
-        fail("Not yet implemented");
+    	flashCard.setStimulus("kitchen");
+        assertEquals("kitchen", flashCard.getStimulus());
     }
 
     /**
-     * Test method for {@link flashCards.Item#setResponse(java.lang.String)} and
-     * {@link flashCards.Item#getResponse()} (combined).
+     * Test method for setResponse(String) and
+     * getResponse() (combined).
      */
     @Test
     public final void testSetAndGetResponse() {
-        fail("Not yet implemented");
+    	flashCard.setResponse("cocina");
+    	assertEquals("cocina", flashCard.getResponse());
     }
 
     /**
-     * Test method for {@link flashCards.Item#setTimesCorrect(int)} and
-     * {@link flashCards.Item#getTimesCorrect()} (combined).
+     * Test method for setTimesCorrect(int) and
+     * getTimesCorrect() (combined).
      */
     @Test
     public final void testSetAndGetTimesCorrect() {
-        fail("Not yet implemented");
+        flashCard.setTimesCorrect(3);
+        assertEquals(3, flashCard.getTimesCorrect());
     }
 
+    @Test(expected=IllegalArgumentException.class)
+    public final void testSetTimesCorrectException() {
+        flashCard.setTimesCorrect(-3);
+    }
+    
 }
