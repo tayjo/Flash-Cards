@@ -6,7 +6,7 @@ package flashCards;
 import javax.swing.JFrame;
 
 /**
- * @author Your Name Goes Here
+ * @author Martha 
  */
 public class StudyGui extends JFrame {
 
