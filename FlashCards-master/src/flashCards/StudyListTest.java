@@ -9,7 +9,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * @author David Matuszek
+ * @author David Matuszek, Martha Trevino & Josh Taylor
  */
 public class StudyListTest {
 
