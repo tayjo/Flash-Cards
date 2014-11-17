@@ -5,6 +5,8 @@ package flashCards;
 
 import javax.swing.*;
 
+import java.io.*;
+import java.util.ArrayList;
 import java.awt.*;
 import java.awt.event.*;
 
@@ -46,12 +48,14 @@ public class EditorGui extends JFrame {
     	fileManager.setLayout(new GridLayout(1, 4));
     	
     	load = new JButton("Load");
+    	load.addActionListener(new MyLoadListener());
     	fileManager.add(load);
     	
     	save = new JButton("Save");
     	fileManager.add(save);
     	
     	saveAs = new JButton("Save As");
+    	saveAs.addActionListener(new MySaveAsListener());
     	fileManager.add(saveAs);
     	
     	quit = new JButton("Quit");
@@ -100,7 +104,7 @@ public class EditorGui extends JFrame {
     
     class MyAddCardListener implements ActionListener {
     	public void actionPerformed(ActionEvent event) {
-    		String pattern = "^(\\S+.*( \\|\\| ){1}\\S+.*( \\|\\| \\S+.*)?)";
+    		String pattern = "^(\\S+( \\|\\| ){1}\\S+( \\|\\| \\d+)?)";
     		String prompt, newCardText, stimulus, response;
     		int timesCorrect;
     		String[] cardParts;
@@ -142,7 +146,7 @@ public class EditorGui extends JFrame {
     
     class MyEditCardListener implements ActionListener {
     	public void actionPerformed(ActionEvent event) {
-    		String pattern = "^(\\S+.*( \\|\\| ){1}\\S+.*( \\|\\| \\S+.*)?)";
+    		String pattern = "^(\\S+( \\|\\| ){1}\\S+( \\|\\| \\d+)?)";
     		String curCardText, curStimulus, prompt, newCardText, stimulus, response;
     		String[] cardParts;
     		int selectedIndex, timesCorrect;
@@ -171,11 +175,11 @@ public class EditorGui extends JFrame {
 		    			response = cardParts[1];
 		    			if (cardParts.length > 2) {
 			    			timesCorrect = Integer.parseInt(cardParts[2]);
-			    			studyList.modify(curItem, stimulus, response, timesCorrect);
+			    			studyList.modify(curItem, stimulus, response);
 			    			cardsListModel.setElementAt(stimulus + " || " + response + " || " + timesCorrect, selectedIndex);
 		    			}
 		    			else {
-			    			studyList.modify(curItem, stimulus, response, curItem.getTimesCorrect());
+			    			studyList.modify(curItem, stimulus, response);
 			    			cardsListModel.setElementAt(stimulus + " || " + response, selectedIndex);
 		    			}
 		    			saved = false;
@@ -224,7 +228,42 @@ public class EditorGui extends JFrame {
     			curItem = studyList.find(curStimulus);
     			cardsListModel.remove(selectedIndex);
     			studyList.delete(curItem);
+    			saved = false;
     		}
+    	}
+    }
+    
+    class MyLoadListener implements ActionListener {
+    	public void actionPerformed(ActionEvent event) {
+    		try {
+    			studyList.load();
+    		}
+    		catch (IOException e) {
+    			JOptionPane.showMessageDialog(null, "An error occurred, please close and try again.");
+    		}
+    		Item card;
+    		ArrayList<Item> tempList = studyList.getList();
+    		String stimulus, response;
+    		int timesCorrect;
+    		for (int i = 0; i < tempList.size(); i++) {
+    			card = tempList.get(i);
+    			stimulus = card.getStimulus();
+    			response = card.getResponse();
+    			timesCorrect = card.getTimesCorrect();
+    			cardsListModel.addElement(stimulus + " || " + response + " || " + timesCorrect);
+    		}
+    	}
+    }
+    
+    class MySaveAsListener implements ActionListener {
+    	public void actionPerformed(ActionEvent event) {
+    		try {
+    			studyList.saveAs();
+    		}
+    		catch (IOException e) {
+    			JOptionPane.showMessageDialog(null, "An error occurred, please close and try again.");
+    		}
+    		saved = true;
     	}
     }
 }

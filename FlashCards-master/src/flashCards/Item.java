@@ -50,4 +50,8 @@ public class Item {
     	}
         this.timesCorrect = times;
     }
+    
+    public String toString() {
+    	return stimulus + " || " + response + " || " + timesCorrect;
+    }
 }
