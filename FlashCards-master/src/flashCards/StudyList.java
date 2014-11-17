@@ -52,7 +52,9 @@ public class StudyList {
 		String line, stimulus, response;
 		String[] lineParts;
 		int timesCorrect;
-        
+        if (lines == null) {
+        	return;
+        }
         for (int i = 0; i < lines.size(); i++) {
         	line = lines.get(i);
         	if (!line.matches(pattern)) {

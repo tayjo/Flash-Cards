@@ -25,8 +25,8 @@ public class EditorGui extends JFrame {
     private JButton editCard;
     private JButton findCard;
     private JButton deleteCard;
-    private DefaultListModel<String> cardsListModel;
-    private JList<String> cardsList;
+    private DefaultListModel<Item> cardsListModel;
+    private JList<Item> cardsList;
     
     public EditorGui() {
     	this.saved = true;
@@ -40,7 +40,8 @@ public class EditorGui extends JFrame {
     void createGui() {
     	
     	this.setSize(600, 400);
-    	this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    	this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+    	this.addWindowListener(new MyWindowListener());
     	
     	this.setLayout(new BorderLayout());
     	
@@ -59,6 +60,7 @@ public class EditorGui extends JFrame {
     	fileManager.add(saveAs);
     	
     	quit = new JButton("Quit");
+    	quit.addActionListener(new MyQuitListener());
     	fileManager.add(quit);
     	
     	fileManager.setPreferredSize(new Dimension(0, 50));
@@ -67,8 +69,8 @@ public class EditorGui extends JFrame {
     	JPanel cardManager = new JPanel();
     	cardManager.setLayout(new BorderLayout());
     	
-    	cardsListModel = new DefaultListModel<String>();
-    	cardsList = new JList<String>(cardsListModel);
+    	cardsListModel = new DefaultListModel<Item>();
+    	cardsList = new JList<Item>(cardsListModel);
     	
     	JScrollPane cardsListPane = new JScrollPane(cardsList);
     	
@@ -105,10 +107,11 @@ public class EditorGui extends JFrame {
     class MyAddCardListener implements ActionListener {
     	public void actionPerformed(ActionEvent event) {
     		String pattern = "^(\\S+( \\|\\| ){1}\\S+( \\|\\| \\d+)?)";
-    		String prompt, newCardText, stimulus, response;
+    		String newCardText, stimulus, response;
     		int timesCorrect;
     		String[] cardParts;
-			prompt = "Enter card in the form: stimulus || response || timesCorrect(optional)";
+    		Item newItem;
+			String prompt = "Enter card in the form: stimulus || response || timesCorrect(optional)";
     		while (true){
 	    		newCardText = JOptionPane.showInputDialog(null, prompt);
 	    		if (newCardText != null) {
@@ -123,13 +126,13 @@ public class EditorGui extends JFrame {
 		    			response = cardParts[1];
 		    			if (cardParts.length > 2) {
 			    			timesCorrect = Integer.parseInt(cardParts[2]);
-			    			studyList.add(new Item(stimulus, response, timesCorrect));
-			    			cardsListModel.addElement(stimulus + " || " + response + " || " + timesCorrect);
+			    			newItem = new Item(stimulus, response, timesCorrect);
 		    			}
 		    			else {
-		    				studyList.add(new Item(stimulus, response));
-		    				cardsListModel.addElement(stimulus + " || " + response);
+		    				newItem = new Item(stimulus, response);
 		    			}
+		    			studyList.add(newItem);
+		    			cardsListModel.addElement(newItem);
 		    			saved = false;
 		    			break;
 		    		}
@@ -147,7 +150,7 @@ public class EditorGui extends JFrame {
     class MyEditCardListener implements ActionListener {
     	public void actionPerformed(ActionEvent event) {
     		String pattern = "^(\\S+( \\|\\| ){1}\\S+( \\|\\| \\d+)?)";
-    		String curCardText, curStimulus, prompt, newCardText, stimulus, response;
+    		String curCardText, prompt, newCardText, stimulus, response;
     		String[] cardParts;
     		int selectedIndex, timesCorrect;
     		Item curItem, findItem;
@@ -156,9 +159,8 @@ public class EditorGui extends JFrame {
     			JOptionPane.showMessageDialog(null, "Select the card that you would like to edit.");
     			return;
     		}
-    		curCardText = cardsList.getSelectedValue();
-    		curStimulus = curCardText.split(" *\\|\\| *")[0];
-    		curItem = studyList.find(curStimulus);
+    		curItem = cardsList.getSelectedValue();
+    		curCardText = curItem.toString();
 			prompt = "Enter card in the form: stimulus || response || timesCorrect(optional)";
     		while (true){
 	    		newCardText = JOptionPane.showInputDialog(null, prompt, curCardText);
@@ -176,11 +178,11 @@ public class EditorGui extends JFrame {
 		    			if (cardParts.length > 2) {
 			    			timesCorrect = Integer.parseInt(cardParts[2]);
 			    			studyList.modify(curItem, stimulus, response);
-			    			cardsListModel.setElementAt(stimulus + " || " + response + " || " + timesCorrect, selectedIndex);
+			    			cardsListModel.setElementAt(curItem, selectedIndex);
 		    			}
 		    			else {
 			    			studyList.modify(curItem, stimulus, response);
-			    			cardsListModel.setElementAt(stimulus + " || " + response, selectedIndex);
+			    			cardsListModel.setElementAt(curItem, selectedIndex);
 		    			}
 		    			saved = false;
 		    			break;
@@ -199,14 +201,15 @@ public class EditorGui extends JFrame {
     class MyFindCardListener implements ActionListener {
     	public void actionPerformed(ActionEvent event) {
     		String search;
+    		Item searchItem;
     		search = JOptionPane.showInputDialog(null, "Enter search term (stimulus or response)");
-    		for (int i = 0; i < cardsListModel.size(); i++) {
-    			if (cardsListModel.getElementAt(i).contains(search)) {
-    				cardsList.setSelectedIndex(i);
-    				return;
-    			}
+    		searchItem = studyList.find(search);
+    		if (searchItem == null) {
+    			JOptionPane.showMessageDialog(null, "Search term not found.");
     		}
-    		JOptionPane.showMessageDialog(null, "Search term not found.");
+    		else {
+    		cardsList.setSelectedValue(searchItem, true);
+    		}
     	}
     }
     
@@ -220,7 +223,8 @@ public class EditorGui extends JFrame {
     			JOptionPane.showMessageDialog(null, "Select the card that you would like to delete.");
     			return;
     		}
-    		curCardText = cardsList.getSelectedValue();
+    		curItem = cardsList.getSelectedValue();
+    		curCardText = curItem.toString();
     		prompt = "Are you sure you want to delete: " + curCardText;
     		userResponse = JOptionPane.showConfirmDialog(null, prompt, prompt, JOptionPane.YES_NO_OPTION);
     		if (userResponse == JOptionPane.YES_OPTION) {
@@ -243,14 +247,9 @@ public class EditorGui extends JFrame {
     		}
     		Item card;
     		ArrayList<Item> tempList = studyList.getList();
-    		String stimulus, response;
-    		int timesCorrect;
     		for (int i = 0; i < tempList.size(); i++) {
     			card = tempList.get(i);
-    			stimulus = card.getStimulus();
-    			response = card.getResponse();
-    			timesCorrect = card.getTimesCorrect();
-    			cardsListModel.addElement(stimulus + " || " + response + " || " + timesCorrect);
+    			cardsListModel.addElement(card);
     		}
     	}
     }
@@ -265,5 +264,39 @@ public class EditorGui extends JFrame {
     		}
     		saved = true;
     	}
+    }
+    
+    class MyQuitListener implements ActionListener {
+    	public void actionPerformed(ActionEvent event) {
+    		if (savedList()) {
+    			System.exit(0);
+    		}
+    	}
+    }
+    
+    class MyWindowListener implements WindowListener {
+    	public void windowClosing(WindowEvent arg0) {
+    		if (savedList()) {
+    			System.exit(0);
+    		}
+    	}
+	  public void windowOpened(WindowEvent arg0) {}
+	  public void windowClosed(WindowEvent arg0) {}
+	  public void windowIconified(WindowEvent arg0) {}
+	  public void windowDeiconified(WindowEvent arg0) {}
+	  public void windowActivated(WindowEvent arg0) {}
+	  public void windowDeactivated(WindowEvent arg0) {}
+    }
+    
+    private boolean savedList() {    	
+    	if (!saved) {
+			String prompt = "Quit without saving?";
+			int quitResponse = JOptionPane.showConfirmDialog
+							   (null, prompt, prompt, JOptionPane.YES_NO_OPTION);
+			if (quitResponse == JOptionPane.NO_OPTION) {
+				return false;
+			}
+		}
+    	return true;
     }
 }
