@@ -30,7 +30,7 @@ public class StudyList {
     	this.flashCards.remove(item);
     }
     
-    public void modify(Item item, String newStimulus, String newResponse) {
+    public void modify(Item item, String newStimulus, String newResponse, int timesCorrect) {
         
     }
     
