@@ -1,3 +1,6 @@
-Hello || Hola || 2
-Kitchen || Cocina || 1
-House || Casa
+Hello || Hola || 4
+Kitchen || Cocina || 4
+House || Casa || 4
+Table || Mesa || 0
+Chair || Silla || 3
+Dog || Perro || 0
