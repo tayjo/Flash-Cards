@@ -53,6 +53,7 @@ public class EditorGui extends JFrame {
     	fileManager.add(load);
     	
     	save = new JButton("Save");
+    	save.addActionListener(new MySaveListener());
     	fileManager.add(save);
     	
     	saveAs = new JButton("Save As");
@@ -119,10 +120,6 @@ public class EditorGui extends JFrame {
 		    		if (newCardText.matches(pattern)) {
 		    			cardParts = newCardText.split(" *\\|\\| *");
 		    			stimulus = cardParts[0];
-		    			if (studyList.find(stimulus) != null) {
-		    				JOptionPane.showMessageDialog(null, "A card with that stimulus already exists.");
-		    				continue;
-		    			}
 		    			response = cardParts[1];
 		    			if (cardParts.length > 2) {
 			    			timesCorrect = Integer.parseInt(cardParts[2]);
@@ -131,7 +128,13 @@ public class EditorGui extends JFrame {
 		    			else {
 		    				newItem = new Item(stimulus, response);
 		    			}
-		    			studyList.add(newItem);
+		    			try {
+			    			studyList.add(newItem);		    				
+		    			}
+		    			catch (IllegalArgumentException e) {
+		    				JOptionPane.showMessageDialog(null, "Another card with that stimulus already exists.");
+		    				return;
+		    			}
 		    			cardsListModel.addElement(newItem);
 		    			saved = false;
 		    			break;
@@ -175,14 +178,13 @@ public class EditorGui extends JFrame {
 		    				continue;
 		    			}
 		    			response = cardParts[1];
-		    			if (cardParts.length > 2) {
-			    			timesCorrect = Integer.parseInt(cardParts[2]);
-			    			studyList.modify(curItem, stimulus, response);
-			    			cardsListModel.setElementAt(curItem, selectedIndex);
+		    			try {
+		    				// PROBLEM: modify does not allow you to change the timesCorrect
+		    				studyList.modify(curItem, stimulus, response);
 		    			}
-		    			else {
-			    			studyList.modify(curItem, stimulus, response);
-			    			cardsListModel.setElementAt(curItem, selectedIndex);
+		    			catch (IllegalArgumentException e) {
+		    				JOptionPane.showMessageDialog(null, "Another card with that stimulus already exists.");
+		    				return;
 		    			}
 		    			saved = false;
 		    			break;
@@ -240,6 +242,7 @@ public class EditorGui extends JFrame {
     class MyLoadListener implements ActionListener {
     	public void actionPerformed(ActionEvent event) {
     		try {
+    			studyList = new StudyList();
     			studyList.load();
     		}
     		catch (IOException e) {
@@ -247,10 +250,23 @@ public class EditorGui extends JFrame {
     		}
     		Item card;
     		ArrayList<Item> tempList = studyList.getList();
+			cardsListModel.clear();
     		for (int i = 0; i < tempList.size(); i++) {
     			card = tempList.get(i);
     			cardsListModel.addElement(card);
     		}
+    	}
+    }
+    
+    class MySaveListener implements ActionListener {
+    	public void actionPerformed(ActionEvent event) {
+    		try {
+    			studyList.save();
+    		}
+    		catch (IOException e) {
+    			JOptionPane.showMessageDialog(null, "An error occurred, please close and try again.");
+    		}
+    		saved = true;
     	}
     }
     
@@ -268,35 +284,43 @@ public class EditorGui extends JFrame {
     
     class MyQuitListener implements ActionListener {
     	public void actionPerformed(ActionEvent event) {
-    		if (savedList()) {
-    			System.exit(0);
-    		}
+    		closeEvent();
     	}
     }
     
     class MyWindowListener implements WindowListener {
+    	@Override
     	public void windowClosing(WindowEvent arg0) {
-    		if (savedList()) {
-    			System.exit(0);
-    		}
+    		closeEvent();
     	}
-	  public void windowOpened(WindowEvent arg0) {}
-	  public void windowClosed(WindowEvent arg0) {}
-	  public void windowIconified(WindowEvent arg0) {}
-	  public void windowDeiconified(WindowEvent arg0) {}
-	  public void windowActivated(WindowEvent arg0) {}
-	  public void windowDeactivated(WindowEvent arg0) {}
+		public void windowOpened(WindowEvent arg0) {}
+		public void windowClosed(WindowEvent arg0) {}
+		public void windowIconified(WindowEvent arg0) {}
+		public void windowDeiconified(WindowEvent arg0) {}
+		public void windowActivated(WindowEvent arg0) {}
+		public void windowDeactivated(WindowEvent arg0) {}
     }
     
-    private boolean savedList() {    	
+    private void closeEvent() { 	
     	if (!saved) {
-			String prompt = "Quit without saving?";
-			int quitResponse = JOptionPane.showConfirmDialog
-							   (null, prompt, prompt, JOptionPane.YES_NO_OPTION);
-			if (quitResponse == JOptionPane.NO_OPTION) {
-				return false;
+			String prompt = "Save before quitting?";
+			int quitResponse = JOptionPane.showConfirmDialog(null, prompt);
+			if (quitResponse == JOptionPane.YES_OPTION) {
+				try {
+					studyList.save();
+					saved = true;
+					System.exit(0);
+				}
+				catch (IOException e){
+					JOptionPane.showMessageDialog(null, "There was an error while saving.");
+				}
+			}
+			else if (quitResponse == JOptionPane.NO_OPTION) {
+				System.exit(0);
 			}
 		}
-    	return true;
+    	else {
+    		System.exit(0);
+    	}
     }
 }

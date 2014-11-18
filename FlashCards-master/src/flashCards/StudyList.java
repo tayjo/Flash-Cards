@@ -24,6 +24,9 @@ public class StudyList {
     }
     
     public void add(Item item) {
+    	if (this.find(item.getStimulus()) != null) {
+    		throw new IllegalArgumentException();
+    	}
     	this.flashCards.add(item);
     }
     
@@ -43,7 +46,12 @@ public class StudyList {
     }
     
     public void modify(Item item, String newStimulus, String newResponse) {
-        item = new Item(newStimulus, newResponse);
+    	// PROBLEM: This searches both stimulus and response, so could get false positive
+    	if (newStimulus != item.getStimulus() && (this.find(newStimulus) != null)) {
+    		throw new IllegalArgumentException();
+    	}
+        item.setStimulus(newStimulus);
+        item.setResponse(newResponse);
     }
     
     public void load() throws IOException {
