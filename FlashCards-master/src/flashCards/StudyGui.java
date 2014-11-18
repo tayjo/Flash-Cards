@@ -8,6 +8,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.IOException;
+import java.util.ArrayList;
 
 /**
  * @author Martha Trevino
@@ -15,12 +16,17 @@ import java.io.IOException;
 public class StudyGui extends JFrame {
 
 	private StudyList studyList;
+	private ArrayList<Item> flashCards;
+	private Item currentFC;
 	private boolean load;
+	private boolean start;
 	private boolean saved;
+	private int nextFC;
 	private JPanel panel;
-	private JLabel title;
 	private JButton loadButton;
 	private JButton saveButton;
+	private JButton startButton;
+	private JButton nextButton;
 	private JTextField responseText;
 	private JTextArea stimulusText;
 
@@ -28,6 +34,7 @@ public class StudyGui extends JFrame {
 		super("StudyGUI - FlashCards");
 		studyList = new StudyList();
 		load = false;
+		start = false;
 		saved = false;
 	}
 
@@ -39,10 +46,7 @@ public class StudyGui extends JFrame {
 		setLayout(new BorderLayout());
 
 		panel = new JPanel();
-		panel.setLayout(new GridLayout(2, 1));
-
-		// title = new JLabel("Welcome to your StudyGUI");
-		// add(title, BorderLayout.NORTH);
+		panel.setLayout(new GridLayout(4, 1));
 
 		loadButton = new JButton("Load Study List");
 		loadButton.setToolTipText("Click to load a Study List.");
@@ -55,6 +59,18 @@ public class StudyGui extends JFrame {
 		panel.add(saveButton);
 		MySaveListener saveListener = new MySaveListener();
 		saveButton.addActionListener(saveListener);
+
+		startButton = new JButton("Start Studying");
+		startButton.setToolTipText("Click to start studying.");
+		panel.add(startButton);
+		MyStartListener startListener = new MyStartListener();
+		startButton.addActionListener(startListener);
+
+		nextButton = new JButton("Next Flashcard");
+		nextButton.setToolTipText("Click to load next flashcard.");
+		panel.add(nextButton);
+		MyNextListener nextListener = new MyNextListener();
+		nextButton.addActionListener(nextListener);
 
 		add(panel, BorderLayout.EAST);
 
@@ -76,18 +92,70 @@ public class StudyGui extends JFrame {
 		responseText.addActionListener(responseListener);
 
 		setSize(650, 400);
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+		addWindowListener(new MyWindowListener());
 		setVisible(true);
 
 	}
 
 	private class MyResponseListener implements ActionListener {
 		public void actionPerformed(ActionEvent event) {
+			if (load && !start) {
+				saved = false;
+				int timesCorrect = currentFC.getTimesCorrect();
+				String responseUser = String.format(event.getActionCommand());
 
-			String stimulusUser = String.format(event.getActionCommand());
+				if (responseUser.toLowerCase().equals(
+						currentFC.getResponse().toLowerCase())) {
+					currentFC.setTimesCorrect(timesCorrect + 1);
+					stimulusText.setText("\n\n\tCorrect!\n\t"
+							+ currentFC.getStimulus() + " : "
+							+ currentFC.getResponse());
 
-			JOptionPane.showMessageDialog(null, stimulusUser);
+				} else {
+					currentFC.setTimesCorrect(0);
+					stimulusText.setText("\n\n\t The stimulus was: "
+							+ currentFC.getStimulus()
+							+ "\n\t The correct response is: "
+							+ currentFC.getResponse());
+				}
+			}
+		}
+	}
 
+	private class MyNextListener implements ActionListener {
+		public void actionPerformed(ActionEvent event) {
+			if (load && !start) {
+				saved = false;
+				nextFC++;
+				if (nextFC == flashCards.size()) {
+					// flashCards.shuffle();
+					nextFC = 0;
+				}
+				currentFC = flashCards.get(nextFC);
+				int timesCorrect = currentFC.getTimesCorrect();
+				int count = 0;
+				while (timesCorrect >= 4 && count <= flashCards.size()) {
+					nextFC++;
+					count++;
+					currentFC = flashCards.get(nextFC);
+					timesCorrect = currentFC.getTimesCorrect();
+				}
+				if (count == flashCards.size()) {
+					JOptionPane
+							.showMessageDialog(null,
+									"\n\n\tCongratulations!! \n\t You learned all your flashcards.");
+				} else {
+					stimulusText
+							.setText("\n\n\n \t " + currentFC.getStimulus());
+				}
+			} else if (!load) {
+				JOptionPane.showMessageDialog(null,
+						"Please load a Study List first.");
+			} else {
+				JOptionPane.showMessageDialog(null,
+						"Press Start to show first Flashcard.");
+			}
 		}
 	}
 
@@ -106,7 +174,7 @@ public class StudyGui extends JFrame {
 				}
 			} else {
 				JOptionPane.showMessageDialog(null,
-						"Please load a study list before saving.");
+						"Please load a Study List before saving.");
 			}
 		}
 	}
@@ -116,11 +184,82 @@ public class StudyGui extends JFrame {
 			try {
 				studyList.load();
 				load = true;
+				saved = true;
+				start = true;
 			} catch (IOException e) {
 				JOptionPane.showMessageDialog(null,
 						"An error occurred, please close and try again.");
 			}
+			stimulusText
+					.setText("\n\n\n \t Study list loaded! \n \t Press Start.");
+		}
+	}
 
+	private class MyStartListener implements ActionListener {
+		public void actionPerformed(ActionEvent event) {
+			if (load && start) {
+				flashCards = studyList.getList();
+				currentFC = flashCards.get(0);
+				stimulusText.setText("\n\n\n \t " + currentFC.getStimulus());
+				start = false;
+			} else if (!load) {
+				JOptionPane.showMessageDialog(null,
+						"Please load a Study List to start studying.");
+			}
+		}
+	}
+
+	class MyWindowListener implements WindowListener {
+		@Override
+		public void windowClosing(WindowEvent event) {
+			if (load && !saved) {
+				int yesNo = JOptionPane.showConfirmDialog(null,
+						"You want to save before quitting?");
+				if (yesNo == JOptionPane.YES_OPTION) {
+					try {
+						studyList.save();
+						saved = true;
+						JOptionPane.showMessageDialog(null,
+								"Your progress has been saved.");
+						System.exit(0);
+
+					} catch (IOException e) {
+						JOptionPane
+								.showMessageDialog(null,
+										"An error occurred, please close and try again.");
+					}
+				} else if (yesNo == JOptionPane.NO_OPTION) {
+					System.exit(0);
+				}
+			}
+			else if(saved){
+				System.exit(0);
+			}
+
+		}
+
+		@Override
+		public void windowActivated(WindowEvent arg0) {
+		}
+
+		@Override
+		public void windowClosed(WindowEvent arg0) {
+		}
+
+		@Override
+		public void windowDeactivated(WindowEvent arg0) {
+		}
+
+		@Override
+		public void windowDeiconified(WindowEvent arg0) {
+		}
+
+		@Override
+		public void windowIconified(WindowEvent arg0) {
+		}
+
+		@Override
+		public void windowOpened(WindowEvent arg0) {
 		}
 	}
 
