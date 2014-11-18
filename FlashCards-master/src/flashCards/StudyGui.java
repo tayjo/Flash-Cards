@@ -15,6 +15,8 @@ import java.io.IOException;
 public class StudyGui extends JFrame {
 
 	private StudyList studyList;
+	private boolean load;
+	private boolean saved;
 	private JPanel panel;
 	private JLabel title;
 	private JButton loadButton;
@@ -25,6 +27,8 @@ public class StudyGui extends JFrame {
 	public StudyGui() {
 		super("StudyGUI - FlashCards");
 		studyList = new StudyList();
+		load = false;
+		saved = false;
 	}
 
 	public static void main(String[] args) {
@@ -37,8 +41,8 @@ public class StudyGui extends JFrame {
 		panel = new JPanel();
 		panel.setLayout(new GridLayout(2, 1));
 
-//		title = new JLabel("Welcome to your StudyGUI");
-//		add(title, BorderLayout.NORTH);
+		// title = new JLabel("Welcome to your StudyGUI");
+		// add(title, BorderLayout.NORTH);
 
 		loadButton = new JButton("Load Study List");
 		loadButton.setToolTipText("Click to load a Study List.");
@@ -54,7 +58,8 @@ public class StudyGui extends JFrame {
 
 		add(panel, BorderLayout.EAST);
 
-		stimulusText = new JTextArea("\n \n \t SHOW STIMULUS HERE", 10, 20);
+		stimulusText = new JTextArea(
+				"\n \n \t Load a Study List to start learning!", 10, 10);
 		Font font = new Font("Verdana", Font.BOLD, 15);
 		stimulusText.setFont(font);
 		stimulusText.setForeground(Color.BLUE);
@@ -62,14 +67,15 @@ public class StudyGui extends JFrame {
 		stimulusText.setToolTipText("Stimulus.");
 		add(stimulusText, BorderLayout.CENTER);
 
-		responseText = new JTextField("Type your response here.", 30);
+		responseText = new JTextField(
+				"Type your response here and press Enter.", 30);
 		responseText.setToolTipText("Type your response here and press Enter.");
 		add(responseText, BorderLayout.SOUTH);
 
 		MyResponseListener responseListener = new MyResponseListener();
 		responseText.addActionListener(responseListener);
 
-		setSize(600, 300);
+		setSize(650, 400);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setVisible(true);
 
@@ -87,11 +93,20 @@ public class StudyGui extends JFrame {
 
 	private class MySaveListener implements ActionListener {
 		public void actionPerformed(ActionEvent event) {
-			try {
-				studyList.save();
-			} catch (IOException e) {
+			if (load) {
+				try {
+					studyList.save();
+					saved = true;
+					JOptionPane.showMessageDialog(null,
+							"Your progress has been saved.");
+
+				} catch (IOException e) {
+					JOptionPane.showMessageDialog(null,
+							"An error occurred, please close and try again.");
+				}
+			} else {
 				JOptionPane.showMessageDialog(null,
-						"An error occurred, please close and try again.");
+						"Please load a study list before saving.");
 			}
 		}
 	}
@@ -100,6 +115,7 @@ public class StudyGui extends JFrame {
 		public void actionPerformed(ActionEvent event) {
 			try {
 				studyList.load();
+				load = true;
 			} catch (IOException e) {
 				JOptionPane.showMessageDialog(null,
 						"An error occurred, please close and try again.");
