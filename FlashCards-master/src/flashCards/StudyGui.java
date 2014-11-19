@@ -13,6 +13,7 @@ import java.util.ArrayList;
 /**
  * @author Martha Trevino
  */
+
 @SuppressWarnings("serial")
 public class StudyGui extends JFrame {
 
@@ -106,24 +107,13 @@ public class StudyGui extends JFrame {
 		public void actionPerformed(ActionEvent event) {
 			if (load && !start) {
 				saved = false;
-				int timesCorrect = currentFC.getTimesCorrect();
-				String responseUser = String.format(event.getActionCommand());
+				String responseUser = String.format(event.getActionCommand())
+						.trim().toLowerCase();
 
-				if (responseUser.toLowerCase().equals(
-						currentFC.getResponse().toLowerCase())) {
-					currentFC.setTimesCorrect(timesCorrect + 1);
-					stimulusText.setText("\n\n\tCorrect!\n\t"
-							+ currentFC.getStimulus() + " : "
-							+ currentFC.getResponse());
+				if (currentFC.userInputCorrect(responseUser)) {
+					stimulusText.setText(currentFC.gotCorrect());
 				} else {
-					currentFC.setTimesCorrect(0);
-
-					stimulusText
-							.setText("\n\n\t The stimulus was: "
-									+ currentFC.getStimulus()
-									+ "\n\t The correct response is: "
-									+ currentFC.getResponse()
-									+ "\n Please type the correct response to continue: ");
+					stimulusText.setText(currentFC.gotIncorrect(responseUser));
 				}
 			}
 		}
