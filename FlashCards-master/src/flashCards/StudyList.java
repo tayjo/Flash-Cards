@@ -46,9 +46,10 @@ public class StudyList {
     }
     
     public void modify(Item item, String newStimulus, String newResponse) {
-    	// PROBLEM: This searches both stimulus and response, so could get false positive
-    	if (newStimulus != item.getStimulus() && (this.find(newStimulus) != null)) {
-    		throw new IllegalArgumentException();
+    	if (newStimulus.toLowerCase() != item.getStimulus().toLowerCase()) {
+    		if (isDuplicateStimulus(newStimulus)) {
+    			throw new IllegalArgumentException();
+    		}
     	}
         item.setStimulus(newStimulus);
         item.setResponse(newResponse);
@@ -99,5 +100,14 @@ public class StudyList {
     		flashCardsStr.add(card.toString());
     	}
         SimpleIO.saveAs(flashCardsStr);
+    }
+    
+    public boolean isDuplicateStimulus (String newStimulus) {
+		for (int i = 0; i < flashCards.size(); i++) {
+			if (newStimulus.toLowerCase().equals(flashCards.get(i).getStimulus().toLowerCase())) {
+	    		return true;
+			}
+		}
+		return false;
     }
 }

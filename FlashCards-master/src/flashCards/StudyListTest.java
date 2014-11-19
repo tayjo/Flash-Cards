@@ -18,6 +18,7 @@ public class StudyListTest {
     
     @Before
     public void setUp() throws Exception {
+    	flashCards = new StudyList();
     	flashCard = new Item("hello", "hola");
     	flashCards.add(flashCard);
     }
@@ -35,7 +36,9 @@ public class StudyListTest {
      */
     @Test
     public final void testAdd() {
-        fail("Not yet implemented");
+        assertEquals(null, flashCards.find("kitchen"));
+        flashCards.add(new Item("kitchen", "cocina"));
+        assertFalse(null == flashCards.find("kitchen"));
     }
 
     /**
@@ -43,7 +46,8 @@ public class StudyListTest {
      */
     @Test
     public final void testFind() {
-        fail("Not yet implemented");
+    	assertEquals(flashCard, flashCards.find("hello"));
+    	assertEquals(flashCard, flashCards.find("hola"));
     }
 
     /**
@@ -51,7 +55,8 @@ public class StudyListTest {
      */
     @Test
     public final void testDelete() {
-        fail("Not yet implemented");
+        flashCards.delete(flashCard);
+        assertEquals(null, flashCards.find("hello"));
     }
 
     /**

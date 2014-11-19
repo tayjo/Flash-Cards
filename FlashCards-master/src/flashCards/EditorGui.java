@@ -13,6 +13,7 @@ import java.awt.event.*;
 /**
  * @author Josh Taylor
  */
+@SuppressWarnings("serial")
 public class EditorGui extends JFrame {
 
     private StudyList studyList;
@@ -29,6 +30,7 @@ public class EditorGui extends JFrame {
     private JList<Item> cardsList;
     
     public EditorGui() {
+    	super("EditorGUI - FlashCards");
     	this.saved = true;
     	studyList = new StudyList();
     }
@@ -72,6 +74,7 @@ public class EditorGui extends JFrame {
     	
     	cardsListModel = new DefaultListModel<Item>();
     	cardsList = new JList<Item>(cardsListModel);
+    	cardsList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
     	
     	JScrollPane cardsListPane = new JScrollPane(cardsList);
     	
@@ -107,12 +110,11 @@ public class EditorGui extends JFrame {
     
     class MyAddCardListener implements ActionListener {
     	public void actionPerformed(ActionEvent event) {
-    		String pattern = "^(\\S+( \\|\\| ){1}\\S+( \\|\\| \\d+)?)";
+    		String pattern = "^(\\S+( \\|\\| ){1}\\S+)";
     		String newCardText, stimulus, response;
-    		int timesCorrect;
     		String[] cardParts;
     		Item newItem;
-			String prompt = "Enter card in the form: stimulus || response || timesCorrect(optional)";
+			String prompt = "Enter card in the form: stimulus || response";
     		while (true){
 	    		newCardText = JOptionPane.showInputDialog(null, prompt);
 	    		if (newCardText != null) {
@@ -121,19 +123,13 @@ public class EditorGui extends JFrame {
 		    			cardParts = newCardText.split(" *\\|\\| *");
 		    			stimulus = cardParts[0];
 		    			response = cardParts[1];
-		    			if (cardParts.length > 2) {
-			    			timesCorrect = Integer.parseInt(cardParts[2]);
-			    			newItem = new Item(stimulus, response, timesCorrect);
-		    			}
-		    			else {
-		    				newItem = new Item(stimulus, response);
-		    			}
+		    			newItem = new Item(stimulus, response);
 		    			try {
 			    			studyList.add(newItem);		    				
 		    			}
 		    			catch (IllegalArgumentException e) {
 		    				JOptionPane.showMessageDialog(null, "Another card with that stimulus already exists.");
-		    				return;
+		    				continue;
 		    			}
 		    			cardsListModel.addElement(newItem);
 		    			saved = false;
@@ -152,11 +148,11 @@ public class EditorGui extends JFrame {
     
     class MyEditCardListener implements ActionListener {
     	public void actionPerformed(ActionEvent event) {
-    		String pattern = "^(\\S+( \\|\\| ){1}\\S+( \\|\\| \\d+)?)";
+    		String pattern = "^(\\S+( \\|\\| ){1}\\S+)";
     		String curCardText, prompt, newCardText, stimulus, response;
     		String[] cardParts;
-    		int selectedIndex, timesCorrect;
-    		Item curItem, findItem;
+    		int selectedIndex;
+    		Item curItem;
     		selectedIndex = cardsList.getSelectedIndex();
     		if (selectedIndex == -1) {
     			JOptionPane.showMessageDialog(null, "Select the card that you would like to edit.");
@@ -164,7 +160,8 @@ public class EditorGui extends JFrame {
     		}
     		curItem = cardsList.getSelectedValue();
     		curCardText = curItem.toString();
-			prompt = "Enter card in the form: stimulus || response || timesCorrect(optional)";
+    		curCardText = curCardText.substring(0, curCardText.lastIndexOf(" || "));
+			prompt = "Enter card in the form: stimulus || response";
     		while (true){
 	    		newCardText = JOptionPane.showInputDialog(null, prompt, curCardText);
 	    		if (newCardText != null) {
@@ -172,21 +169,16 @@ public class EditorGui extends JFrame {
 		    		if (newCardText.matches(pattern)) {
 		    			cardParts = newCardText.split(" *\\|\\| *");
 		    			stimulus = cardParts[0];
-		    			findItem = studyList.find(stimulus);
-		    			if (findItem != null && (findItem != curItem)) {
-		    				JOptionPane.showMessageDialog(null, "Another card with that stimulus already exists.");
-		    				continue;
-		    			}
 		    			response = cardParts[1];
 		    			try {
-		    				// PROBLEM: modify does not allow you to change the timesCorrect
 		    				studyList.modify(curItem, stimulus, response);
 		    			}
 		    			catch (IllegalArgumentException e) {
 		    				JOptionPane.showMessageDialog(null, "Another card with that stimulus already exists.");
-		    				return;
+		    				continue;
 		    			}
 		    			saved = false;
+		    			cardsList.clearSelection();
 		    			break;
 		    		}
 		    		else {
@@ -309,18 +301,18 @@ public class EditorGui extends JFrame {
 				try {
 					studyList.save();
 					saved = true;
-					System.exit(0);
+					this.dispose();
 				}
 				catch (IOException e){
 					JOptionPane.showMessageDialog(null, "There was an error while saving.");
 				}
 			}
 			else if (quitResponse == JOptionPane.NO_OPTION) {
-				System.exit(0);
+				this.dispose();
 			}
 		}
     	else {
-    		System.exit(0);
+    		this.dispose();
     	}
     }
 }
