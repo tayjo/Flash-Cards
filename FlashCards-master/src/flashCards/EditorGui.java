@@ -25,8 +25,8 @@ public class EditorGui extends JFrame {
     private JButton editCard;
     private JButton findCard;
     private JButton deleteCard;
-    private DefaultListModel<Item> cardsListModel;
-    private JList<Item> cardsList;
+    private DefaultListModel cardsListModel;
+    private JList cardsList;
     
     public EditorGui() {
     	this.saved = true;
@@ -70,8 +70,8 @@ public class EditorGui extends JFrame {
     	JPanel cardManager = new JPanel();
     	cardManager.setLayout(new BorderLayout());
     	
-    	cardsListModel = new DefaultListModel<Item>();
-    	cardsList = new JList<Item>(cardsListModel);
+    	cardsListModel = new DefaultListModel();
+    	cardsList = new JList(cardsListModel);
     	
     	JScrollPane cardsListPane = new JScrollPane(cardsList);
     	
@@ -162,7 +162,7 @@ public class EditorGui extends JFrame {
     			JOptionPane.showMessageDialog(null, "Select the card that you would like to edit.");
     			return;
     		}
-    		curItem = cardsList.getSelectedValue();
+    		curItem = (Item) cardsList.getSelectedValue();
     		curCardText = curItem.toString();
 			prompt = "Enter card in the form: stimulus || response || timesCorrect(optional)";
     		while (true){
@@ -225,7 +225,7 @@ public class EditorGui extends JFrame {
     			JOptionPane.showMessageDialog(null, "Select the card that you would like to delete.");
     			return;
     		}
-    		curItem = cardsList.getSelectedValue();
+    		curItem = (Item) cardsList.getSelectedValue();
     		curCardText = curItem.toString();
     		prompt = "Are you sure you want to delete: " + curCardText;
     		userResponse = JOptionPane.showConfirmDialog(null, prompt, prompt, JOptionPane.YES_NO_OPTION);

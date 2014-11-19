@@ -15,6 +15,9 @@ import java.util.ArrayList;
  */
 public class StudyGui extends JFrame {
 
+	/**
+	 * 
+	 */
 	private StudyList studyList;
 	private ArrayList<Item> flashCards;
 	private Item currentFC;
@@ -183,15 +186,19 @@ public class StudyGui extends JFrame {
 		public void actionPerformed(ActionEvent event) {
 			try {
 				studyList.load();
-				load = true;
-				saved = true;
-				start = true;
+				flashCards = studyList.getList();
+				if (!flashCards.isEmpty()) {
+					load = true;
+					saved = true;
+					start = true;
+					stimulusText
+							.setText("\n\n\n \t Study list loaded! \n \t Press Start.");
+				}
 			} catch (IOException e) {
 				JOptionPane.showMessageDialog(null,
 						"An error occurred, please close and try again.");
 			}
-			stimulusText
-					.setText("\n\n\n \t Study list loaded! \n \t Press Start.");
+
 		}
 	}
 
@@ -231,8 +238,7 @@ public class StudyGui extends JFrame {
 				} else if (yesNo == JOptionPane.NO_OPTION) {
 					System.exit(0);
 				}
-			}
-			else if(saved){
+			} else if (saved) {
 				System.exit(0);
 			}
 
