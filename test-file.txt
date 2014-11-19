@@ -1,4 +1,4 @@
-Hello || Hola || 5
+Hello || Hola || 6
 Kitchen || Cocina || 4
 House || Casa || 4
 Table || Mesa || 1
