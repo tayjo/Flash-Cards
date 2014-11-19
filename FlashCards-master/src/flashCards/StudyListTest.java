@@ -28,7 +28,8 @@ public class StudyListTest {
      */
     @Test
     public final void testStudyList() {
-        fail("Not yet implemented");
+        StudyList flashCards2 = new StudyList();
+    	assertTrue(flashCards2 instanceof StudyList);
     }
 
     /**
@@ -48,6 +49,7 @@ public class StudyListTest {
     public final void testFind() {
     	assertEquals(flashCard, flashCards.find("hello"));
     	assertEquals(flashCard, flashCards.find("hola"));
+    	assertEquals(null, flashCards.find("silla"));
     }
 
     /**
@@ -64,7 +66,20 @@ public class StudyListTest {
      */
     @Test
     public final void testModify() {
-        fail("Not yet implemented");
+        flashCards.modify(flashCard, "Kitchen", "Cocina");
+        assertEquals("Kitchen", flashCard.getStimulus());
+        assertEquals("Cocina", flashCard.getResponse());
+        assertEquals(flashCard, flashCards.find("Kitchen"));
     }
+    
+    /**
+     * Test method for isDuplicateStimulus(String).
+     */
+    @Test
+    public final void testIsDuplicateStimulus() {
+    	assertTrue(flashCards.isDuplicateStimulus("hello"));
+    	assertFalse(flashCards.isDuplicateStimulus("kitchen"));
+    }
+    
 
 }

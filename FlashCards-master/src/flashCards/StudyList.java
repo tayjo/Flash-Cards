@@ -69,6 +69,15 @@ public class StudyList {
         item.setResponse(newResponse);
     }
 
+    public boolean isDuplicateStimulus (String newStimulus) {
+		for (int i = 0; i < flashCards.size(); i++) {
+			if (newStimulus.toLowerCase().equals(flashCards.get(i).getStimulus().toLowerCase())) {
+	    		return true;
+			}
+		}
+		return false;
+    }
+    
 	public void load() throws IOException {
 		ArrayList<String> lines = SimpleIO.load();
 		String pattern = "^(\\S+( \\|\\| ){1}\\S+( \\|\\| \\d+)?)";
@@ -114,14 +123,5 @@ public class StudyList {
     		flashCardsStr.add(card.toString());
     	}
         SimpleIO.saveAs(flashCardsStr);
-    }
-    
-    public boolean isDuplicateStimulus (String newStimulus) {
-		for (int i = 0; i < flashCards.size(); i++) {
-			if (newStimulus.toLowerCase().equals(flashCards.get(i).getStimulus().toLowerCase())) {
-	    		return true;
-			}
-		}
-		return false;
     }
 }

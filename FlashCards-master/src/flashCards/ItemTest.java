@@ -80,4 +80,12 @@ public class ItemTest {
         flashCard.setTimesCorrect(-3);
     }
     
+    /**
+     * Test method for toString()
+     */
+    @Test
+    public final void testToString() {
+        assertEquals("hello || hola || 0", flashCard.toString());
+    }
+    
 }
