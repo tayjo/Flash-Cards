@@ -13,8 +13,13 @@ import java.util.ArrayList;
 /**
  * @author Martha Trevino
  */
+
+@SuppressWarnings("serial")
 public class StudyGui extends JFrame {
 
+	/**
+	 * 
+	 */
 	private StudyList studyList;
 	private ArrayList<Item> flashCards;
 	private Item currentFC;
@@ -34,7 +39,7 @@ public class StudyGui extends JFrame {
 		super("StudyGUI - FlashCards");
 		studyList = new StudyList();
 		load = false;
-		start = false;
+		start = true;
 		saved = false;
 	}
 
@@ -102,22 +107,13 @@ public class StudyGui extends JFrame {
 		public void actionPerformed(ActionEvent event) {
 			if (load && !start) {
 				saved = false;
-				int timesCorrect = currentFC.getTimesCorrect();
-				String responseUser = String.format(event.getActionCommand());
+				String responseUser = String.format(event.getActionCommand())
+						.trim().toLowerCase();
 
-				if (responseUser.toLowerCase().equals(
-						currentFC.getResponse().toLowerCase())) {
-					currentFC.setTimesCorrect(timesCorrect + 1);
-					stimulusText.setText("\n\n\tCorrect!\n\t"
-							+ currentFC.getStimulus() + " : "
-							+ currentFC.getResponse());
-
+				if (currentFC.userInputCorrect(responseUser)) {
+					stimulusText.setText(currentFC.gotCorrect());
 				} else {
-					currentFC.setTimesCorrect(0);
-					stimulusText.setText("\n\n\t The stimulus was: "
-							+ currentFC.getStimulus()
-							+ "\n\t The correct response is: "
-							+ currentFC.getResponse());
+					stimulusText.setText(currentFC.gotIncorrect(responseUser));
 				}
 			}
 		}
@@ -183,15 +179,18 @@ public class StudyGui extends JFrame {
 		public void actionPerformed(ActionEvent event) {
 			try {
 				studyList.load();
-				load = true;
-				saved = true;
-				start = true;
+				flashCards = studyList.getList();
+				if (!flashCards.isEmpty()) {
+					load = true;
+					saved = true;
+					stimulusText
+							.setText("\n\n\n \t Study list loaded! \n \t Press Start.");
+				}
 			} catch (IOException e) {
 				JOptionPane.showMessageDialog(null,
 						"An error occurred, please close and try again.");
 			}
-			stimulusText
-					.setText("\n\n\n \t Study list loaded! \n \t Press Start.");
+
 		}
 	}
 
@@ -221,7 +220,7 @@ public class StudyGui extends JFrame {
 						saved = true;
 						JOptionPane.showMessageDialog(null,
 								"Your progress has been saved.");
-						System.exit(0);
+						dispose();
 
 					} catch (IOException e) {
 						JOptionPane
@@ -229,11 +228,10 @@ public class StudyGui extends JFrame {
 										"An error occurred, please close and try again.");
 					}
 				} else if (yesNo == JOptionPane.NO_OPTION) {
-					System.exit(0);
+					dispose();
 				}
-			}
-			else if(saved){
-				System.exit(0);
+			} else if (saved || start) {
+				dispose();
 			}
 
 		}

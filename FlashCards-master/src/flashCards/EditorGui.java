@@ -158,7 +158,7 @@ public class EditorGui extends JFrame {
     			JOptionPane.showMessageDialog(null, "Select the card that you would like to edit.");
     			return;
     		}
-    		curItem = cardsList.getSelectedValue();
+    		curItem = (Item) cardsList.getSelectedValue();
     		curCardText = curItem.toString();
     		curCardText = curCardText.substring(0, curCardText.lastIndexOf(" || "));
 			prompt = "Enter card in the form: stimulus || response";
@@ -217,7 +217,7 @@ public class EditorGui extends JFrame {
     			JOptionPane.showMessageDialog(null, "Select the card that you would like to delete.");
     			return;
     		}
-    		curItem = cardsList.getSelectedValue();
+    		curItem = (Item) cardsList.getSelectedValue();
     		curCardText = curItem.toString();
     		prompt = "Are you sure you want to delete: " + curCardText;
     		userResponse = JOptionPane.showConfirmDialog(null, prompt, prompt, JOptionPane.YES_NO_OPTION);

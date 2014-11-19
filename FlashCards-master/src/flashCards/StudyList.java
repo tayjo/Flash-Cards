@@ -14,6 +14,8 @@ import simpleIO.SimpleIO;
 public class StudyList {
 
 	private ArrayList<Item> flashCards;
+	private ArrayList<Item> currentFlashCards;
+	final int numberOfItems = 15;
 	
     public StudyList() {
         flashCards = new ArrayList<Item>();
@@ -22,6 +24,18 @@ public class StudyList {
     public ArrayList<Item> getList() {
     	return flashCards;
     }
+    
+	public ArrayList<Item> getCurrentList() {
+		return currentFlashCards;
+	}
+
+	public void choose() {
+		if (flashCards.size() <= numberOfItems) {
+			currentFlashCards = flashCards;
+		} else {
+
+		}
+	}
     
     public void add(Item item) {
     	if (this.find(item.getStimulus()) != null) {
@@ -54,9 +68,9 @@ public class StudyList {
         item.setStimulus(newStimulus);
         item.setResponse(newResponse);
     }
-    
-    public void load() throws IOException {
-        ArrayList<String> lines = SimpleIO.load();
+
+	public void load() throws IOException {
+		ArrayList<String> lines = SimpleIO.load();
 		String pattern = "^(\\S+( \\|\\| ){1}\\S+( \\|\\| \\d+)?)";
 		String line, stimulus, response;
 		String[] lineParts;
